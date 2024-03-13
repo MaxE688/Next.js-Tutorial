@@ -16,7 +16,8 @@ const iconMap = {
 };
 
 export default async function CardWrapper() {
-
+	
+	//fetches all of the card data from DB
 	const {
 		numberOfCustomers,
 		numberOfInvoices,
@@ -24,6 +25,7 @@ export default async function CardWrapper() {
 		totalPendingInvoices
 	} = await fetchCardData();
 
+  //return cards with data
   return (
     <>
 	  <Card title="Collected" value={totalPaidInvoices} type="collected" />
