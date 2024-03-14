@@ -8,9 +8,15 @@ import { redirect } from 'next/navigation';
 //schema for form data to update DB
 const FormSchema = z.object({
 	id: z.string(),
-	customerId: z.string(),
-	amount: z.coerce.number(),
-	status: z.enum(['pending', 'paid']),
+	customerId: z.string({
+		invalid_type_error: 'Please select a customer',
+	}),
+	amount: z.coerce
+		.number()
+		.gt(0, { message: 'Please enter an amount greater than $0' }),
+	status: z.enum(['pending', 'paid'], {
+		invalid_type_error: 'Please select an invoice status'
+	}),
 	date: z.string(),
 });
 
@@ -18,16 +24,38 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({id: true, date:true});
 const UpdateInvoice = FormSchema.omit({id: true, date:true});
 
-export async function createInvoice(formData: FormData) {
+export type State = {
+	errors?: {
+		customerId?: string[];
+		amount?: string[];
+		status?: string[];
+	};
+	message?: string | null;
+};
+
+export async function createInvoice(prevState: State, formData: FormData) {
 	
-	//validate formData
-	const { customerId, amount, status } = CreateInvoice.parse({
+	//validate formData using zod
+	const validatedFields = CreateInvoice.safeParse({
 		customerId: formData.get('customerId'),
 		amount: formData.get('amount'),
 		status: formData.get('status'),
 	});
 	
-	//format Amount to cents
+	
+	console.log(validatedFields);
+	
+	//If form validation fails return errors
+	if(!validatedFields.success){
+		return {
+			errors: validatedFields.error.flatten().fieldErrors,
+			message: 'Missing Fields. Failed to Create Invoice',
+		};
+	}
+	
+	
+	//Prepares data for insertion into the database
+	const { customerId, amount, status } = validatedFields.data;
 	const amountInCents = amount * 100;
 	const date = new Date().toISOString().split('T')[0];
 	
@@ -50,16 +78,25 @@ export async function createInvoice(formData: FormData) {
 	redirect('/dashboard/invoices');
 }
 
-export async function updateInvoice(id: string, formData: FormData){
+export async function updateInvoice(id: string, prevState: State, formData: FormData){
 	
 	//validate formData
-	const { customerId, amount, status } = UpdateInvoice.parse({
+	const validatedFields = UpdateInvoice.safeParse({
 		customerId: formData.get('customerId'),
 		amount: formData.get('amount'),
 		status: formData.get('status'),
 	});
 	
-	//format amount to cents
+	//If form validation fails return errors
+	if(!validatedFields.success){
+		return {
+			errors: validatedFields.error.flatten().fieldErrors,
+			message: 'Missing Fields. Failed to Update Invoice.',
+		};
+	}
+	
+	//prepares data for insertion to the database
+	const { customerId, amount, status } = validatedFields.data
 	const amountInCents = amount * 100;
 	
 	try{
