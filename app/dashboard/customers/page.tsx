@@ -1,7 +1,7 @@
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/customers/table';
 import { lusitana } from '@/app/ui/fonts';
-import { InvoicesTableSkeletion } from '@/app/ui/skeletons';
+import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
@@ -24,7 +24,7 @@ export default async function Page({
 	const customers = await fetchFilteredCustomers(query);
 
 	return (
-		<Suspense fallback={InvoicesTableSkeletion}>
+		<Suspense fallback={InvoicesTableSkeleton}>
 			<Table customers={customers} />
 		</Suspense>
 	);
