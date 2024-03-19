@@ -1,6 +1,5 @@
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/customers/table';
-//import { CreateCustomer } from '@/app/ui/customers/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeletion } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
@@ -23,7 +22,6 @@ export default async function Page({
 	const query = searchParams?.query || '';
 	const currentPage = Number(searchParams?.page) || 1;
 	const customers = await fetchFilteredCustomers(query);
-	// const totalPages = await fetchInvoicesPages(query);
 
 	return (
 		<Suspense fallback={InvoicesTableSkeletion}>
