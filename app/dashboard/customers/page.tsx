@@ -1,9 +1,33 @@
+import Search from '@/app/ui/search';
+import Table from '@/app/ui/customers/table';
+//import { CreateCustomer } from '@/app/ui/customers/buttons';
+import { lusitana } from '@/app/ui/fonts';
+import { InvoicesTableSkeletion } from '@/app/ui/skeletons';
+import { Suspense } from 'react';
+import { fetchFilteredCustomers } from '@/app/lib/data';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
 	title: 'Customers'
 };
 
-export default function Page() {
-	return <p>Customers Page</p>;
+export default async function Page({ 
+	searchParams,
+}: {
+	searchParams?:{
+		query?: string; 
+		page?: string;
+	};
+}) {
+
+	const query = searchParams?.query || '';
+	const currentPage = Number(searchParams?.page) || 1;
+	const customers = await fetchFilteredCustomers(query);
+	// const totalPages = await fetchInvoicesPages(query);
+
+	return (
+		<Suspense fallback={InvoicesTableSkeletion}>
+			<Table customers={customers} />
+		</Suspense>
+	);
 }
