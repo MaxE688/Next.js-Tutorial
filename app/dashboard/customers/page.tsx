@@ -24,7 +24,7 @@ export default async function Page({
 	const customers = await fetchFilteredCustomers(query);
 
 	return (
-		<Suspense fallback={InvoicesTableSkeleton}>
+		<Suspense fallback={<InvoicesTableSkeleton />}>
 			<Table customers={customers} />
 		</Suspense>
 	);
